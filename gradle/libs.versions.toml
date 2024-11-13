@@ -1,0 +1,32 @@
+[versions]
+assertj = "3.26.3"
+azureCommunicationEmail = "1.0.0"
+azureCommunicationCommon = "1.2.0"
+benManes = "0.51.0"
+dependencyCheck = "10.0.4"
+easyRandom = "5.0.0"
+dataFaker = "2.4.0"
+gitProperties = "2.4.2"
+hypersistenceUtils = "3.8.3"
+junit = "5.11.0"
+junitPlatform = "1.11.0"
+logback = "8.0"
+lombok = "1.18.30"
+mockito = "5.13.0"
+mapSrtuct = "1.6.2"
+restAssured = "5.5.0"
+sonarqube = "5.0.0.4638"
+springBoot = "3.3.4"
+springDependencyManagement = "1.1.6"
+springdoc = "2.6.0"
+testcontainers = "1.20.3"
+zeebe = "8.5.0"
+zeebeTest = "8.1.17"
+
+[libraries]
+springdoc = { group = "org.springdoc", name = "springdoc-openapi-starter-webmvc-ui", version.ref = "springdoc" }
+logback = { group = "net.logstash.logback", name = "logstash-logback-encoder", version.ref = "logback" }
+zeebe = { group = "io.camunda", name = "spring-zeebe-starter", version.ref = "zeebe" }
+zeebeClientJava = { group = "io.camunda", name = "zeebe-client-java", version.ref = "zeebe" }
+zeebeTest = { group = "io.camunda", name = "spring-zeebe-test-common", version.ref = "zeebeTest" }
+zeebeExtension = { group = "io.camunda", name = "zeebe-process-test-extension", version.ref = "zeebe" }

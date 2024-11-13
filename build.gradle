@@ -1,0 +1,127 @@
+import org.owasp.dependencycheck.reporting.ReportGenerator
+
+plugins {
+    id 'java'
+    id 'jacoco'
+    id 'checkstyle'
+    id 'org.springframework.boot' version libs.versions.springBoot
+    id 'io.spring.dependency-management' version libs.versions.springDependencyManagement
+    id 'org.owasp.dependencycheck' version libs.versions.dependencyCheck
+    id 'com.github.ben-manes.versions' version libs.versions.benManes
+    id 'com.gorylenko.gradle-git-properties' version libs.versions.gitProperties
+}
+
+group = 'org.manko'
+version = '0.0.1-SNAPSHOT'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
+
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter'
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+build {
+    dependsOn jacocoTestReport // Отчёт JaCoCo
+    dependsOn jacocoTestCoverageVerification // Проверка покрытия тестами
+}
+
+springBoot {
+    buildInfo() //build-info.properties создает файл в resources/main/META-inf
+}
+
+checkstyle {
+    toolVersion = "10.18.1"
+    configFile = file("${rootProject.projectDir}/config/checkstyle/google_checks.xml")
+}
+
+gitProperties {
+    dateFormat = "yyyy-MM-dd'T'HH:mmZ"
+    keys = [
+            "git.branch",
+            "git.build.version",
+            "git.commit.message.short",
+            "git.commit.time",
+            "git.commit.id",
+            "git.commit.id.abbrev",
+            "git.commit.message.full"
+    ]
+}
+
+dependencyCheck {
+    // проверяет актульность зависимостей создает папку security-report в build
+    autoUpdate = false
+
+    def reportFolderPath = project.layout.buildDirectory
+            .dir("security-report").get().asFile.path
+
+    outputDirectory = reportFolderPath
+    format = ReportGenerator.Format.HTML.toString()
+    nvd.apiKey = "31bbac23-3c85-4e91-a13c-f7d7dcce8ea6"
+    nvd.maxRetryCount = 3
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}
+
+tasks.withType(Checkstyle).configureEach {
+    reports {
+        xml.required = false
+        html.required = true
+    }
+}
+
+jacocoTestReport {
+    dependsOn test // Задача зависит от тестов
+
+    reports {
+        xml {
+            enabled true
+            destination file("${buildDir}/reports/jacoco/xml/jacoco.xml")
+        }
+        html {
+            enabled true
+            destination file("${buildDir}/reports/jacoco/html/")
+        }
+    }
+
+    classDirectories.setFrom(
+            files(
+                    classDirectories.files.collect {
+                        fileTree(it).exclude("com/example/demo/DemoApplication")
+                    }
+            )
+    )
+
+    finalizedBy jacocoTestCoverageVerification // Задача для проверки покрытия после отчёта
+}
+
+jacocoTestCoverageVerification {
+    violationRules {
+        rule {
+            limit {
+                minimum = 0.3 // Минимальное покрытие должно быть 50%
+            }
+        }
+    }
+}
+
+
