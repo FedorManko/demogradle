@@ -2,6 +2,7 @@
 assertj = "3.26.3"
 azureCommunicationEmail = "1.0.0"
 azureCommunicationCommon = "1.2.0"
+docker = "9.4.0"
 benManes = "0.51.0"
 dependencyCheck = "10.0.4"
 easyRandom = "5.0.0"

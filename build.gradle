@@ -7,8 +7,10 @@ plugins {
     id 'org.springframework.boot' version libs.versions.springBoot
     id 'io.spring.dependency-management' version libs.versions.springDependencyManagement
     id 'org.owasp.dependencycheck' version libs.versions.dependencyCheck
-    id 'com.github.ben-manes.versions' version libs.versions.benManes
+    id 'com.github.ben-manes.versions' version libs.versions.benManes // добавляет команду dependencyUpdates
     id 'com.gorylenko.gradle-git-properties' version libs.versions.gitProperties
+    id 'org.sonarqube' version libs.versions.sonarqube
+    id 'com.bmuschko.docker-spring-boot-application' version libs.versions.docker
 }
 
 group = 'org.manko'
@@ -17,6 +19,23 @@ version = '0.0.1-SNAPSHOT'
 java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(17)
+    }
+}
+
+def dockerImageName = "manko.project.com/demo"
+
+def dockerImagePrefix = [
+        "${dockerImageName}:${version}",
+        "${dockerImageName}:latest"
+]
+
+docker {
+    springBootApplication {
+        maintainer = "manko"
+        baseImage = "eclipse-temurin:21.0.4_7-jdk-jammy"
+        ports = [8080, 8080]
+        images = dockerImagePrefix
+        jvmArgs = ["-Xmx384m"]
     }
 }
 
@@ -32,6 +51,9 @@ repositories {
 
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    runtimeOnly 'org.springframework.boot:spring-boot-docker-compose'
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
@@ -41,6 +63,15 @@ dependencies {
 build {
     dependsOn jacocoTestReport // Отчёт JaCoCo
     dependsOn jacocoTestCoverageVerification // Проверка покрытия тестами
+}
+
+sonar {
+    properties {
+        property("sonar.host.url", "http://localhost:9000")
+        property("sonar.projectKey", "demo-project")
+        property("sonar.projectName", "demo-project")
+        property("sonar.qualitygate.wait", true)
+    }
 }
 
 springBoot {
@@ -53,6 +84,7 @@ checkstyle {
 }
 
 gitProperties {
+    //git.properties создает файл в resources/main/META-inf
     dateFormat = "yyyy-MM-dd'T'HH:mmZ"
     keys = [
             "git.branch",

@@ -1,0 +1,18 @@
+---
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, prometheus, info, loggers
+
+spring:
+
+  docker:
+    compose:
+      readiness:
+        wait: never
+      enabled: true
+      file: ./docker/docker-compose-demo.yaml
+      lifecycle-management: start_only
+      start:
+        skip: if_running

@@ -1,0 +1,12 @@
+---
+version: '3.9'
+
+services:
+
+  customer:
+    container_name: demo-manko
+    image: manko.project.com/demo:latest
+    environment:
+      spring.profiles.active: local
+    ports:
+      - "9093:9093"
