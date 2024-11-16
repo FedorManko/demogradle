@@ -7,6 +7,6 @@ services:
     container_name: demo-manko
     image: manko.project.com/demo:latest
     environment:
-      spring.profiles.active: local
+      spring.profiles.active: docker
     ports:
-      - "9093:9093"
+      - "9093:8085"
